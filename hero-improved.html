@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --navy:#1C2534;--navy-mid:#2E3744;--slate:#4F5B6E;
+  --amber:#F5C518;--amber-deep:#E6AE00;
+  --paper:#F7F8FA;--paper-alt:#ECEEF2;
+  --ink:#1E2430;--ink-soft:#68748A;--line:#DDE1E8;
+  --white:#FFFFFF;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-body:'Inter',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --maxw:1160px;--r:14px;
+  --sh-sm:0 2px 12px -4px rgba(30,36,48,.09);
+  --sh-md:0 16px 40px -18px rgba(30,36,48,.22);
+  --sh-lg:0 32px 64px -24px rgba(30,36,48,.28);
+}
+
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;margin:0;padding:0;}
+img,svg{display:block;max-width:100%;}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+@media(min-width:768px){.wrap{padding:0 48px;}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-body);font-weight:700;font-size:15px;padding:15px 28px;border-radius:10px;border:2px solid transparent;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,background .2s ease;white-space:nowrap;text-decoration:none;}
+.btn:hover{transform:translateY(-2px);}
+.btn-primary{background:var(--amber);color:var(--navy);}
+.btn-primary:hover{background:var(--amber-deep);box-shadow:0 14px 32px -10px rgba(245,197,24,.45);}
+.btn-ghost{background:transparent;color:var(--white);border-color:rgba(255,255,255,.4);}
+.btn-ghost:hover{border-color:var(--white);background:rgba(255,255,255,.1);}
+
+/* HERO */
+.hero{
+  background:var(--navy);
+  color:var(--white);
+  padding:90px 0 110px;
+  position:relative;
+  overflow:hidden;
+  min-height:100dvh;
+  display:flex;
+  align-items:center;
+}
+.hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);
+  background-size:28px 28px;
+  pointer-events:none;
+}
+.hero-bg-icon{
+  position:absolute;
+  right:-60px;
+  bottom:-30px;
+  width:440px;
+  height:440px;
+  opacity:.07;
+  pointer-events:none;
+}
+.hero-wrap{
+  position:relative;
+  z-index:1;
+  width:100%;
+  display:grid;
+  gap:60px;
+  max-width:var(--maxw);
+  margin:0 auto;
+  padding:0 24px;
+}
+@media(min-width:768px){.hero-wrap{padding:0 48px;}}
+@media(min-width:960px){.hero-wrap{grid-template-columns:1fr 380px;align-items:center;}}
+
+/* TAG */
+.hero-tag{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  font-family:var(--font-mono);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--amber);
+  margin-bottom:26px;
+}
+.hero-tag::before{
+  content:'';
+  width:6px;height:6px;
+  background:var(--amber);
+  border-radius:50%;
+  flex-shrink:0;
+}
+
+/* HEADING */
+.hero-h1{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:clamp(32px,5vw,56px);
+  line-height:1.12;
+  letter-spacing:-.025em;
+  color:var(--white);
+  margin-bottom:24px;
+}
+.hero-h1 em{font-style:normal;color:var(--amber);}
+
+/* SUBTITLE */
+.hero-sub{
+  font-size:17px;
+  line-height:1.75;
+  color:rgba(255,255,255,.88);
+  max-width:520px;
+  margin-bottom:40px;
+}
+
+/* CTAS */
+.hero-ctas{
+  display:flex;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-bottom:52px;
+}
+
+/* PROOF STRIP */
+.hero-proof{
+  display:flex;
+  flex-wrap:wrap;
+  gap:36px;
+  padding-top:28px;
+  border-top:1px solid rgba(255,255,255,.15);
+}
+.proof-item{display:flex;flex-direction:column;gap:5px;}
+.proof-lbl{
+  font-size:12px;
+  color:rgba(255,255,255,.65);
+  line-height:1.45;
+  order:-1;
+}
+.proof-num{
+  font-family:var(--font-mono);
+  font-size:36px;
+  color:var(--amber);
+  font-weight:700;
+  line-height:1;
+  letter-spacing:-.02em;
+}
+
+/* HERO CARD */
+.hero-card{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  padding:34px 30px;
+}
+.hc-lbl{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.5);
+  display:block;
+  margin-bottom:18px;
+}
+.hc-num{
+  font-family:var(--font-display);
+  font-weight:700;
+  font-size:62px;
+  color:var(--amber);
+  line-height:1;
+  margin-bottom:6px;
+}
+.hc-num sub{
+  font-size:28px;
+  vertical-align:top;
+  margin-top:12px;
+  display:inline-block;
+}
+.hc-desc{
+  font-size:14.5px;
+  color:rgba(255,255,255,.8);
+  line-height:1.6;
+  margin-bottom:22px;
+}
+.hc-div{
+  border:none;
+  border-top:1px solid rgba(255,255,255,.12);
+  margin:0 0 20px;
+}
+.hc-list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:13px;
+}
+.hc-list li{
+  font-size:14px;
+  color:rgba(255,255,255,.85);
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  line-height:1.45;
+}
+.hc-list li::before{
+  content:'';
+  width:5px;height:5px;
+  background:var(--amber);
+  border-radius:50%;
+  flex-shrink:0;
+  margin-top:6px;
+}
+
+/* reveal desativado */
+.r{opacity:1!important;transform:none!important;transition:none!important;}
+body{background:transparent;}
+</style>
+</head>
+<body>
+<div class="dt-bloco" id="dt-hero-1">
+<section class="hero">
+  <img src="../01-Logos/Icone-Digital-Tecla.png" class="hero-bg-icon" alt="">
+  <div class="hero-wrap">
+
+    <!-- LEFT COLUMN -->
+    <div>
+      <span class="hero-tag">Construção Civil</span>
+
+      <h1 class="hero-h1">
+        Sua construtora perde dinheiro<br>
+        <em>em papel toda semana</em>
+      </h1>
+
+      <p class="hero-sub">
+        Medições manuais, NFs erradas, subempreiteiros sem controle
+        e relatórios feitos no Excel custam entre R$ 8.000 e R$ 15.000
+        por mês em retrabalho. A Digital Tecla fecha esse ralo.
+      </p>
+
+      <div class="hero-ctas">
+        <a
+          href="https://wa.me/5511980708781?text=Ol%C3%A1%21+Tenho+uma+construtora+e+quero+um+diagn%C3%B3stico+de+automa%C3%A7%C3%A3o."
+          class="btn btn-primary"
+          target="_blank"
+          rel="noopener"
+        >
+          Quero um diagnóstico gratuito
+        </a>
+        <a href="#como-funciona" class="btn btn-ghost">Ver como funciona</a>
+      </div>
+
+      <div class="hero-proof">
+        <div class="proof-item">
+          <span class="proof-num">40–80h</span>
+          <span class="proof-lbl">perdidas por mês<br>em processos manuais</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">R$ 12k</span>
+          <span class="proof-lbl">custo médio mensal<br>de retrabalho operacional</span>
+        </div>
+        <div class="proof-item">
+          <span class="proof-num">3–5 meses</span>
+          <span class="proof-lbl">payback médio<br>da automação</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT CARD -->
+    <div class="hero-card r">
+      <span class="hc-lbl">Diagnóstico revela</span>
+      <div class="hc-num">40<sub>-80h</sub></div>
+      <p class="hc-desc">
+        perdidas por mês em tarefas que podem ser
+        automatizadas na sua construtora
+      </p>
+      <hr class="hc-div">
+      <ul class="hc-list">
+        <li>Medições sem auditoria de subempreiteiros</li>
+        <li>NFs de material lançadas duas vezes</li>
+        <li>Relatórios de obra feitos na mão</li>
+        <li>CAT e CREA sem controle automático</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+</div>
+</body>
+</html>
