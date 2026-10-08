@@ -38,9 +38,14 @@ Se o pedido for amplo ("usa tudo"), rode os 13 na sequência: **Contexto** (5 Cs
 1. **Premissas** (1–3 linhas).
 2. **Análise por framework** — para cada um usado: 3–6 linhas ou tabela curta, sempre com o resultado aplicado ao caso (não a definição).
 3. **Síntese**: as 3 decisões mais importantes que os frameworks revelaram (e onde se contradizem, se houver).
-4. **Plano de ação**: tabela `Ação | Framework de origem | Métrica | Meta | Prazo`.
-5. **Automação n8n** (se aplicável): bloco de workflow JSON completo, pronto para importar.
-6. **Próximo passo**: uma única ação para fazer hoje.
+4. **Planejamento em 3 níveis (sempre)** — todo plano é entregue organizado em:
+   - **Estratégico** (por quê / onde / quanto; horizonte 6–12 meses): objetivo, público-alvo, posicionamento, proposta de valor, direção de crescimento (Ansoff), investimento e métricas-norte (margem, ROAS de equilíbrio, CAC máximo), riscos.
+   - **Tático** (como; horizonte ~90 dias): estrutura de campanhas/canais, divisão de verba, funil, mensagens (AIDA), calendário de conteúdo, rampa de investimento e critérios de avanço.
+   - **Operacional** (quem / quando; rotina diária, semanal e mensal): checklists e tarefas por semana com responsável sugerido, regras objetivas de pausar/escalar, rotina de relatório, automações.
+   Cada nível referencia o anterior (a tática serve à estratégia; a operação executa a tática) e tem métricas próprias.
+5. **Plano de ação**: tabela `Ação | Nível | Framework de origem | Métrica | Meta | Prazo`.
+6. **Automação n8n** (se aplicável): bloco de workflow JSON completo, pronto para importar.
+7. **Próximo passo**: uma única ação para fazer hoje.
 
 ## Regras
 - Cada recomendação precisa de uma métrica de validação (CAC, ROAS, ROI, taxa de conversão, margem, LTV, recompra).
