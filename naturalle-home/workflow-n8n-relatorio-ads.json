@@ -1,0 +1,321 @@
+{
+  "name": "Naturalle Home - Relatorio diario Google Ads + Meta Ads",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "n1",
+      "name": "Todo dia 8h",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "meta_ad_account_id",
+              "value": "PREENCHER_ID_CONTA_META",
+              "type": "string"
+            },
+            {
+              "id": "a2",
+              "name": "google_customer_id",
+              "value": "PREENCHER_ID_GOOGLE_ADS_SEM_TRACOS",
+              "type": "string"
+            },
+            {
+              "id": "a3",
+              "name": "graph_version",
+              "value": "v23.0",
+              "type": "string"
+            },
+            {
+              "id": "a4",
+              "name": "google_ads_version",
+              "value": "v22",
+              "type": "string"
+            },
+            {
+              "id": "a5",
+              "name": "break_even_roas",
+              "value": 2.5,
+              "type": "number"
+            },
+            {
+              "id": "a6",
+              "name": "roas_target",
+              "value": 3.5,
+              "type": "number"
+            },
+            {
+              "id": "a7",
+              "name": "cac_max",
+              "value": 360,
+              "type": "number"
+            },
+            {
+              "id": "a8",
+              "name": "whatsapp_phone_number_id",
+              "value": "PREENCHER_PHONE_NUMBER_ID",
+              "type": "string"
+            },
+            {
+              "id": "a9",
+              "name": "whatsapp_to",
+              "value": "55DDDNUMERO",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "n2",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/{{ $json.graph_version }}/act_{{ $json.meta_ad_account_id }}/insights",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "facebookGraphApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "level",
+              "value": "campaign"
+            },
+            {
+              "name": "date_preset",
+              "value": "yesterday"
+            },
+            {
+              "name": "fields",
+              "value": "campaign_name,spend,clicks,actions,action_values"
+            },
+            {
+              "name": "limit",
+              "value": "200"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "n3",
+      "name": "Meta Insights",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        0
+      ],
+      "credentials": {
+        "facebookGraphApi": {
+          "id": "CONFIGURAR",
+          "name": "Facebook Graph account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().flatMap(i => i.json.data || []);\nconst pick = (arr, types) => { for (const t of types) { const f = (arr || []).find(a => a.action_type === t); if (f) return Number(f.value); } return 0; };\nconst out = rows.map(r => ({\n  canal: 'Meta',\n  campanha: r.campaign_name,\n  gasto: Number(r.spend || 0),\n  cliques: Number(r.clicks || 0),\n  compras: pick(r.actions, ['omni_purchase', 'purchase']),\n  receita: pick(r.action_values, ['omni_purchase', 'purchase']),\n  conversas_whatsapp: pick(r.actions, ['onsite_conversion.messaging_conversation_started_7d'])\n}));\nreturn [{ json: { rows: out } }];"
+      },
+      "id": "n4",
+      "name": "Normalizar Meta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://googleads.googleapis.com/{{ $('Config').first().json.google_ads_version }}/customers/{{ $('Config').first().json.google_customer_id }}/googleAds:search",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleAdsOAuth2Api",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "developer-token",
+              "value": "PREENCHER_DEVELOPER_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ query: \"SELECT campaign.name, metrics.cost_micros, metrics.clicks, metrics.conversions, metrics.conversions_value FROM campaign WHERE segments.date DURING YESTERDAY AND campaign.status = 'ENABLED'\" }) }}",
+        "options": {}
+      },
+      "id": "n5",
+      "name": "Google Ads",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        880,
+        0
+      ],
+      "credentials": {
+        "googleAdsOAuth2Api": {
+          "id": "CONFIGURAR",
+          "name": "Google Ads account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const meta = $('Normalizar Meta').first().json.rows;\nconst results = $input.all().flatMap(i => i.json.results || []);\nconst g = results.map(r => ({\n  canal: 'Google',\n  campanha: r.campaign.name,\n  gasto: Number(r.metrics.costMicros || 0) / 1e6,\n  cliques: Number(r.metrics.clicks || 0),\n  compras: Number(r.metrics.conversions || 0),\n  receita: Number(r.metrics.conversionsValue || 0),\n  conversas_whatsapp: 0\n}));\nreturn [{ json: { rows: [...meta, ...g] } }];"
+      },
+      "id": "n6",
+      "name": "Juntar canais",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const cfg = $('Config').first().json;\nconst rows = $input.first().json.rows;\nconst f = n => 'R$ ' + n.toFixed(2).replace('.', ',');\nconst sum = k => rows.reduce((s, r) => s + r[k], 0);\nconst gasto = sum('gasto'), receita = sum('receita'), compras = sum('compras');\nconst roas = gasto ? receita / gasto : 0;\nconst cac = compras ? gasto / compras : 0;\nconst alertas = [];\nconst linhas = rows.map(r => {\n  const rr = r.gasto ? r.receita / r.gasto : 0;\n  if (r.gasto >= 2 * cfg.cac_max && r.compras === 0) alertas.push('PAUSAR? ' + r.canal + ' - ' + r.campanha + ': gastou ' + f(r.gasto) + ' sem venda');\n  else if (r.gasto >= cfg.cac_max && rr < cfg.break_even_roas) alertas.push('ATENCAO ' + r.canal + ' - ' + r.campanha + ': ROAS ' + rr.toFixed(2) + ' abaixo do equilibrio');\n  return '- ' + r.canal + ' | ' + r.campanha + ': ' + f(r.gasto) + ' | ' + r.compras + ' vendas | ROAS ' + rr.toFixed(2);\n});\nconst msg = [\n  'Naturalle Home - Ads de ontem',\n  'Gasto ' + f(gasto) + ' | Receita ' + f(receita) + ' | ROAS ' + roas.toFixed(2) + ' (equilibrio ' + cfg.break_even_roas + ', alvo ' + cfg.roas_target + ')',\n  'Vendas ' + compras + ' | CAC ' + (compras ? f(cac) : 'n/d') + ' (max ' + f(cfg.cac_max) + ')',\n  '',\n  ...linhas,\n  '',\n  alertas.length ? alertas.join('\\n') : 'Sem alertas.'\n].join('\\n');\nreturn [{ json: { message: msg } }];"
+      },
+      "id": "n7",
+      "name": "Calcular ROAS e alertas",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/{{ $('Config').first().json.graph_version }}/{{ $('Config').first().json.whatsapp_phone_number_id }}/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: 'whatsapp', to: $('Config').first().json.whatsapp_to, type: 'text', text: { body: $json.message } }) }}",
+        "options": {}
+      },
+      "id": "n8",
+      "name": "Enviar WhatsApp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "CONFIGURAR",
+          "name": "WhatsApp Cloud Bearer"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Todo dia 8h": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Meta Insights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Insights": {
+      "main": [
+        [
+          {
+            "node": "Normalizar Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar Meta": {
+      "main": [
+        [
+          {
+            "node": "Google Ads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Ads": {
+      "main": [
+        [
+          {
+            "node": "Juntar canais",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Juntar canais": {
+      "main": [
+        [
+          {
+            "node": "Calcular ROAS e alertas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular ROAS e alertas": {
+      "main": [
+        [
+          {
+            "node": "Enviar WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
